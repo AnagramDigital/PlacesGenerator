@@ -1,7 +1,9 @@
 <br><br><br>
 <h1>Generador de places</h1>
 <button class="btn btn-primary" (click)="open(content)">Crear nuevo Place</button>
-<hr>
+  <a style="margin-left: 10px; float:right;" href="http://gettwitterid.com/" target="_blank" class="btn btn-sm btn-info">Obtener ID de Twitter</a>
+  <a style="margin-left: 10px; float:right" href="https://findmyfbid.com/" target="_blank" class="btn btn-sm btn-info">Obtener id de facebook</a>
+  <hr>
 <table class="table table-striped">
   <thead>
   <tr>
@@ -84,7 +86,21 @@
           <input class="form-control" id="tel">
         </div>
 
-        <div id="map"></div>
+        <hr>
+
+        <agm-map class="mapa" [zoom]="zoom" [latitude]="lat" [longitude]="lng" (mapClick)="placeMarker($event)">
+          <agm-marker [latitude]="lat" [longitude]="lng"></agm-marker>
+        </agm-map>
+
+        <label for="name">tel</label>
+        <div>priv
+          <input class="form-control" id="lat" type="number" [value]="lat" (input)="lat">
+        </div>
+
+        <label for="name">tel</label>
+        <div>
+          <input class="form-control" id="lng" type="number" [value]="lng" (input)="lng">
+        </div>
 
       </div>
     </form>

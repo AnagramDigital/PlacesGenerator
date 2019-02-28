@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
+import {HttpClient} from '@angular/common/http';
+import {forEach} from '@angular/router/src/utils/collection';
+import {d} from '@angular/core/src/render3';
 
 
 
@@ -20,57 +23,9 @@ interface Place {
   willAttendToday: number;
 }
 
-const PLACES: Place[] = [
-  {
-    id: 0,
-    name: 'La concha de la lora',
-    localType: 'Bar',
-    review: 5,
-    facebook: 'https://www.facebook.com',
-    twitter: 'https://www.twitter.com',
-    instagram: 'https://www.instagram.com',
-    about: 'No conozco este bar',
-    lat: 5,
-    lng: 5,
-    tel: '88080808',
-    imageUrl: 'https://www.google.com',
-    currentlyInPlace: 5,
-    willAttendToday: 5
-  },
-  {
-    id: 1,
-    name: 'La concha de la lora',
-    localType: 'Bar',
-    review: 5,
-    facebook: 'https://www.facebook.com',
-    twitter: 'https://www.twitter.com',
-    instagram: 'https://www.instagram.com',
-    about: 'No conozco este bar',
-    lat: 5,
-    lng: 5,
-    tel: '88080808',
-    imageUrl: 'https://www.google.com',
-    currentlyInPlace: 5,
-    willAttendToday: 5
-  },
-  {
-    id: 2,
-    name: 'La concha de la lora',
-    localType: 'Bar',
-    review: 5,
-    facebook: 'https://www.facebook.com',
-    twitter: 'https://www.twitter.com',
-    instagram: 'https://www.instagram.com',
-    about: 'No conozco este bar',
-    lat: 5,
-    lng: 5,
-    tel: '88080808',
-    imageUrl: 'https://www.google.com',
-    currentlyInPlace: 5,
-    willAttendToday: 5
-  }
+let PLACES: Place[] = [];
 
-];
+
 
 @Component({
   selector: 'app-list-places',
@@ -78,11 +33,14 @@ const PLACES: Place[] = [
   styleUrls: ['./list-places.component.css']
 })
 
-export class ListPlacesComponent{
+export class ListPlacesComponent implements OnInit{
   places = PLACES;
   closeResult: string;
-
-  constructor(private modalService: NgbModal) {}
+  lat = 9.934113;
+  lng = -84.103834;
+  zoom = 14;
+  facebookId = ''
+  constructor(private modalService: NgbModal, private http: HttpClient) {}
 
   open(content) {
     this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title', size: 'lg'}).result.then((result) => {
@@ -90,6 +48,12 @@ export class ListPlacesComponent{
     }, (reason) => {
       this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
     });
+  }
+
+
+  placeMarker($event) {
+    this.lat = $event.coords.lat;
+    this.lng = $event.coords.lng;
   }
 
   private getDismissReason(reason: any): string {
@@ -100,6 +64,14 @@ export class ListPlacesComponent{
     } else {
       return  `with: ${reason}`;
     }
+  }
+
+  ngOnInit(): void {
+    this.http.get('http://approach-server-env.pnne2aqzef.us-west-2.elasticbeanstalk.com/api/places').subscribe(data => {
+      for(let i = 0; i < parseInt(data.length); i++){
+        PLACES.push(data[i]);
+      }
+    });
   }
 
 

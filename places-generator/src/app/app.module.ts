@@ -4,6 +4,8 @@ import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { ListPlacesComponent } from './list-places/list-places.component';
+import {AgmCoreModule} from '@agm/core';
+import {HttpClientModule} from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -12,7 +14,11 @@ import { ListPlacesComponent } from './list-places/list-places.component';
   ],
   imports: [
     BrowserModule,
-    NgbModule
+    NgbModule,
+    HttpClientModule,
+    AgmCoreModule.forRoot({
+      apiKey: 'AIzaSyDYNnmvgQjR2bOPM9hMMWKSdbro_YGaXjA'
+    })
   ],
   providers: [],
   bootstrap: [AppComponent]
