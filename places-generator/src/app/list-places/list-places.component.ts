@@ -68,7 +68,7 @@ export class ListPlacesComponent implements OnInit{
 
   ngOnInit(): void {
     this.http.get('http://approach-server-env.pnne2aqzef.us-west-2.elasticbeanstalk.com/api/places').subscribe(data => {
-      for(let i = 0; i < parseInt(data.length); i++){
+      for (let i = 0; i < parseInt(<any>data.length); i++){
         PLACES.push(data[i]);
       }
     });
