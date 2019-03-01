@@ -10,7 +10,6 @@
     <th scope="col">id</th>
     <th scope="col">Nombre</th>
     <th scope="col">Local type</th>
-    <th scope="col">Review</th>
     <th scope="col">Facebook</th>
     <th scope="col">Twitter</th>
     <th scope="col">Instagram</th>
@@ -27,14 +26,13 @@
     <th scope="row">{{ place.id }}</th>
     <td>{{ place.name }}</td>
     <td>{{ place.localType }}</td>
-    <td>{{ place.review }}</td>
     <td>{{ place.facebook }}</td>
     <td>{{ place.twitter }}</td>
     <td>{{ place.instagram }}</td>
     <td>{{ place.about }}</td>
-    <td>{{ place.lat}}, {{place.lng}}</td>
+    <td><a href="https://www.google.com/maps/search/?api=1&query={{place.lat}}, {{place.lng}}" target="_blank"> {{ place.lat}}, {{place.lng}}</a></td>
     <td>{{ place.tel }}</td>
-    <td>{{ place.imageUrl }}</td>
+    <td><img width="50px" src="{{ place.imageUrl }}" alt=""></td>
     <td><button value="{{place.id}}" class="btn btn-primary">Edit</button></td>
 
   </tr>
@@ -43,7 +41,7 @@
 
 <ng-template #content let-modal>
   <div class="modal-header">
-    <h4 class="modal-title" id="modal-basic-title">Profile update</h4>
+    <h4 class="modal-title" id="modal-basic-title">{{modalTitle}}</h4>
     <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
       <span aria-hidden="true">&times;</span>
     </button>
@@ -59,11 +57,6 @@
         <label for="name">Local type</label>
         <div>
           <input class="form-control" id="localType">
-        </div>
-
-        <label for="name">Review</label>
-        <div>
-          <input class="form-control" id="Review" type="number" max="5" min="0">
         </div>
 
         <label for="name">facebook</label>
@@ -92,20 +85,85 @@
           <agm-marker [latitude]="lat" [longitude]="lng"></agm-marker>
         </agm-map>
 
-        <label for="name">tel</label>
-        <div>priv
-          <input class="form-control" id="lat" type="number" [value]="lat" (input)="lat">
-        </div>
-
-        <label for="name">tel</label>
+        <label for="name">lat</label>
         <div>
-          <input class="form-control" id="lng" type="number" [value]="lng" (input)="lng">
+
+          <input class="form-control" id="lat" [value]="lat" (input)="lat">
+
+
+        <label for="name">lat</label>
+
+          <input class="form-control" id="lng" [value]="lng" (input)="lng">
         </div>
 
+        <hr>
+        <div id="pictures">
+
+        </div>
+
+
+
+        <div class="container">
+          <div class="row">
+            <div class="col-xl align-items-center">
+              <a style="text-align: center;" onclick="document.getElementById('thumbnail').click();">
+                <div style="width:247px; height: 277px">
+                <div style="position: relative; width: 100%; height:100%; z-index: 1; background: url('../../assets/hot_place_frame.png');">
+                  <i class="far fa-image" style="line-height: 247px"></i>
+                </div>
+                <div style="position: relative; left: 5%; top:-96%; width:91%; height: 81%; border-radius: 25px"></div>
+
+                <input id="thumbnail" type="file" name="foto" style="display:none">
+              </div></a>
+              <p>Thumbnail</p>
+            </div>
+          </div>
+            <div class="row">
+              <div class="col-xl">
+                <a style="text-align: center;" onclick="document.getElementById('file-input1').click();">
+                  <div style="background-color: rgb(230,230,230); width:302.22px; height: 170px">
+                  <i class="far fa-image" style="line-height: 170px"></i>
+                  <input id="file-input1" type="file" name="foto" style="display:none">
+                </div></a>
+                <p>Picture 1</p>
+              </div>
+
+              <div class="col-xl">
+                <a style="text-align: center; float: right" onclick="document.getElementById('file-input2').click();">
+                  <div style="background-color: rgb(230,230,230); width:302.22px; height: 170px">
+                  <i class="far fa-image" style="line-height: 170px"></i>
+                  <input id="file-input2" type="file" name="foto" style="display:none">
+                </div></a>
+                <p>Picture 2</p>
+              </div>
+              <div class="col-xl"></div>
+            </div>
+          <br>
+          <div class="row">
+            <div class="col-xl">
+              <a style="text-align: center;" onclick="document.getElementById('file-input3').click();">
+                <div style="background-color: rgb(230,230,230); width:302.22px; height: 170px">
+                <i class="far fa-image" style="line-height: 170px"></i>
+                <input id="file-input3" type="file" name="foto" style="display:none">
+              </div></a>
+              <p>Picture 3</p>
+            </div>
+
+            <div class="col-xl">
+              <a style="text-align: center; float: right" onclick="document.getElementById('file-input4').click();">
+                <div style="background-color: rgb(230,230,230); width:302.22px; height: 170px">
+                <i class="far fa-image" style="line-height: 170px"></i>
+                <input id="file-input4" type="file" name="foto" style="display:none">
+              </div></a>
+              <p>Picture 4</p>
+            </div>
+            <div class="col-xl"></div>
+          </div>
+        </div>
       </div>
     </form>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Save</button>
+    <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">{{doneButtonTitle}}</button>
   </div>
 </ng-template>

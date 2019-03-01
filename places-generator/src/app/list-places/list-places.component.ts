@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 import {HttpClient} from '@angular/common/http';
-import {forEach} from '@angular/router/src/utils/collection';
-import {d} from '@angular/core/src/render3';
+
 
 
 
@@ -39,10 +38,14 @@ export class ListPlacesComponent implements OnInit{
   lat = 9.934113;
   lng = -84.103834;
   zoom = 14;
-  facebookId = ''
+  facebookId = '';
+  modalTitle = '';
+  doneButtonTitle = '';
   constructor(private modalService: NgbModal, private http: HttpClient) {}
 
   open(content) {
+    this.modalTitle = 'Crear Place';
+    this.doneButtonTitle = 'Guardar'
     this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title', size: 'lg'}).result.then((result) => {
       this.closeResult = `Closed with: ${result}`;
     }, (reason) => {
@@ -66,9 +69,11 @@ export class ListPlacesComponent implements OnInit{
     }
   }
 
+
+
   ngOnInit(): void {
     this.http.get('http://approach-server-env.pnne2aqzef.us-west-2.elasticbeanstalk.com/api/places').subscribe(data => {
-      for (let i = 0; i < parseInt(<any>data.length); i++){
+      for (let i = 0; i < (<Place[]>data).length; i++) {
         PLACES.push(data[i]);
       }
     });
