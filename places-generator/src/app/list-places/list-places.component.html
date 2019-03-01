@@ -4,6 +4,8 @@
   <a style="margin-left: 10px; float:right;" href="http://gettwitterid.com/" target="_blank" class="btn btn-sm btn-info">Obtener ID de Twitter</a>
   <a style="margin-left: 10px; float:right" href="https://findmyfbid.com/" target="_blank" class="btn btn-sm btn-info">Obtener id de facebook</a>
   <hr>
+
+<input type="text" class="form-group" placeholder="Buscar" (input)="searchValue" (keyup)="search($event)">
 <table class="table table-striped">
   <thead>
   <tr>
@@ -18,11 +20,12 @@
     <th scope="col">Tel</th>
     <th scope="col">Thumbnail</th>
     <th scope="col">Edit</th>
+    <th scope="col">Pais</th>
 
   </tr>
   </thead>
-  <tbody>
-  <tr *ngFor="let place of places; index as i">
+  <tbody id="places">
+  <tr *ngFor="let place of places; index as i" ng>
     <th scope="row">{{ place.id }}</th>
     <td>{{ place.name }}</td>
     <td>{{ place.localType }}</td>
@@ -34,6 +37,7 @@
     <td>{{ place.tel }}</td>
     <td><img width="50px" src="{{ place.imageUrl }}" alt=""></td>
     <td><button value="{{place.id}}" class="btn btn-primary">Edit</button></td>
+    <td>{{countries[place.id]}}</td>
 
   </tr>
   </tbody>

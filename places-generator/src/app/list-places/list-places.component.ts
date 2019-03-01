@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 import {HttpClient} from '@angular/common/http';
-
+import $ from 'jquery';
 
 
 
@@ -22,7 +22,8 @@ interface Place {
   willAttendToday: number;
 }
 
-let PLACES: Place[] = [];
+const PLACES: Place[] = [];
+const PLACESBackup: Place[] = [];
 
 
 
@@ -32,20 +33,22 @@ let PLACES: Place[] = [];
   styleUrls: ['./list-places.component.css']
 })
 
-export class ListPlacesComponent implements OnInit{
+export class ListPlacesComponent implements OnInit {
   places = PLACES;
   closeResult: string;
   lat = 9.934113;
   lng = -84.103834;
   zoom = 14;
+  searchValue = '';
   facebookId = '';
   modalTitle = '';
   doneButtonTitle = '';
+  countries = {};
   constructor(private modalService: NgbModal, private http: HttpClient) {}
 
   open(content) {
     this.modalTitle = 'Crear Place';
-    this.doneButtonTitle = 'Guardar'
+    this.doneButtonTitle = 'Guardar';
     this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title', size: 'lg'}).result.then((result) => {
       this.closeResult = `Closed with: ${result}`;
     }, (reason) => {
@@ -71,11 +74,35 @@ export class ListPlacesComponent implements OnInit{
 
 
 
+  getAddressParts(object, id) {
+    object.forEach(o => {
+      if (o.types.length === 2) {
+        if (o.types[0] === 'country' && o.types[1] === 'political') {
+          this.countries[id] = o['formatted_address'];
+        }
+      }
+    });
+  }
+
+  search($event) {
+    const value = $event.target.value.toLowerCase();
+    $('#places tr').filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+    });
+  }
+
+
   ngOnInit(): void {
     this.http.get('http://approach-server-env.pnne2aqzef.us-west-2.elasticbeanstalk.com/api/places').subscribe(data => {
       for (let i = 0; i < (<Place[]>data).length; i++) {
         PLACES.push(data[i]);
+        PLACESBackup.push(data[i]);
+        this.http.get('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + data[i].lat + ',' + data[i].lng + '&sensor=false&key=AIzaSyBU5Z3JKq9QKZM2n8xGWs26PYqDHiyQ4F0').subscribe( data2 => {
+          this.countries[data[i].id] = data2;
+          this.getAddressParts(data2['results'], data[i].id);
+        });
       }
+
     });
   }
 
