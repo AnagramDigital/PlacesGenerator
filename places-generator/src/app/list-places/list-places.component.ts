@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 import {HttpClient} from '@angular/common/http';
-import $ from 'jquery';
-
+import * as $ from 'jquery';
+import * as domtoimage from 'dom-to-image';
+import { saveAs } from 'file-saver';
 
 
 interface Place {
@@ -24,6 +25,8 @@ interface Place {
 
 
 
+
+
 const PLACES: Place[] = [];
 const PLACESBackup: Place[] = [];
 
@@ -37,6 +40,8 @@ const PLACESBackup: Place[] = [];
 
 export class ListPlacesComponent implements OnInit {
   places = PLACES;
+  cnvs: any;
+  thumbnailPreview: any;
   closeResult: string;
   lat = 9.934113;
   lng = -84.103834;
@@ -56,6 +61,15 @@ export class ListPlacesComponent implements OnInit {
   pictureThreeFile: File;
   pictureFourFile: File;
   countries = {};
+
+
+  /*DATAS*/
+  thumbnailData;
+  pictureUnoData;
+  pictureDosData;
+  pictureTresData;
+  pictureCuatroData;
+
   constructor(private modalService: NgbModal, private http: HttpClient) {}
 
   open(content) {
@@ -85,13 +99,27 @@ export class ListPlacesComponent implements OnInit {
   }
 
   public setThumbnail(event: any) {
+    this.thumbnailPreview = document.getElementById('thumbnailPreview');
+
     const file = event.target.files[0];
     const reader = new FileReader();
     reader.onload = e => {
       this.thumbnailSrc = reader.result;
       this.thumbnailFile = file;
+      let node = document.getElementById('thumbnailPreview');
+
+      domtoimage.toPng(node)
+        .then(function(dataUrl) {
+          console.log(dataUrl);
+        })
+        .catch(function(error) {
+          console.error('oops, something went wrong!', error);
+        });
     }
     reader.readAsDataURL(file);
+
+
+
   }
 
   public setPictureUno(event: any) {
@@ -165,8 +193,11 @@ export class ListPlacesComponent implements OnInit {
       }
 
     });
+
+
   }
 
 
 
 }
+

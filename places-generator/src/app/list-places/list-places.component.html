@@ -111,10 +111,10 @@
           <div class="row">
             <div class="col-xl align-items-center">
               <a style="text-align: center;" onclick="document.getElementById('thumbnail').click();">
-                <div style="width:247px; height: 277px">
-                <img src="{{thumbnailSrc}}" id="thumbnailImage" style="width:91%; height:82%; position:relative; background: pink; border-radius:25px; border:none;" [ngStyle]="{'opacity': thumbnailSrc.length == 0 ? 0 : 1}">
-                  <img src='../../assets/hot_place_frame.png' alt="" style="position:relative; width:100%; height: 100%; z-index: 1; top: -237px">
-                <div style="position: relative; left: 5%; top:-96%; width:91%; height: 81%; border-radius: 25px"></div>
+                <div id="thumbnailPreview" style="width:247px; height: 277px; position:relative; overflow:hidden">
+                  <canvas id="thumbnailCanvas" style="height:0%; position:relative; width:0%; z-index: 999"></canvas>
+                <img src="{{thumbnailSrc}}" id="thumbnailImage" style="background-size: cover;width:92%; height:82%; position:absolute; left: 11px; top: 10px; border-radius:25px; border:none;" [ngStyle]="{'opacity': thumbnailSrc.length == 0 ? 0 : 1}">
+                  <img src='../../assets/hot_place_frame.png' alt="" style="position:absolute; width:100%; height: 100%; z-index: 1; left:0;">
 
                 <input id="thumbnail" type="file" name="foto" style="display:none" (change)="setThumbnail($event)">
               </div></a>
@@ -170,3 +170,5 @@
     <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">{{doneButtonTitle}}</button>
   </div>
 </ng-template>
+
+<div src="" id="test" style="width:247px; height: 277px; "></div>
