@@ -4,8 +4,8 @@ import {HttpClient} from '@angular/common/http';
 import * as $ from 'jquery';
 import * as domtoimage from 'dom-to-image';
 import { AngularFireStorage, AngularFireStorageReference, AngularFireUploadTask } from 'angularfire2/storage';
-import { AngularFireDatabase } from '@angular/fire/database';
 import { Observable } from 'rxjs';
+import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 
 
 
@@ -80,7 +80,14 @@ export class ListPlacesComponent implements OnInit {
 
 
 
-  constructor(private modalService: NgbModal, private http: HttpClient, private afStorage: AngularFireStorage) {}
+  itemRef: AngularFireObject<any>;
+  item: Observable<any>;
+  db: AngularFireDatabase;
+  constructor(private modalService: NgbModal, private http: HttpClient, private afStorage: AngularFireStorage, db: AngularFireDatabase) {
+    this.db = db;
+    this.itemRef = db.object('PlacePics');
+    this.item = this.itemRef.valueChanges();
+  }
 
   open(content) {
     this.modalTitle = 'Crear Place';
@@ -110,23 +117,52 @@ export class ListPlacesComponent implements OnInit {
 
   public setThumbnail(event: any) {
     this.thumbnailPreview = document.getElementById('thumbnailPreview');
-
+    let self = this;
     const file = event.target.files[0];
     const reader = new FileReader();
     reader.onload = e => {
       this.thumbnailSrc = reader.result;
-      this.thumbnailFile = file;
       let node = document.getElementById('thumbnailPreview');
-
       domtoimage.toPng(node)
         .then(function(dataUrl) {
           console.log(dataUrl);
+          var block = dataUrl.split(";");
+          var contentType = block[0].split(":")[1];
+          var realData = block[1].split(",")[1];
+          var block = dataUrl.split(";");
+          var contentType = block[0].split(":")[1];
+          var realData = block[1].split(",")[1];
+          self.thumbnailFile = new File([self.b64toBlob(realData, contentType,512)], 'Thumbnail.png', {type: 'image/png'});
         })
         .catch(function(error) {
           console.error('oops, something went wrong!', error);
         });
     }
     reader.readAsDataURL(file);
+  }
+
+  b64toBlob(b64Data, contentType, sliceSize) {
+    contentType = contentType || '';
+    sliceSize = sliceSize || 512;
+
+    var byteCharacters = atob(b64Data);
+    var byteArrays = [];
+
+    for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+      var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+      var byteNumbers = new Array(slice.length);
+      for (var i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      var byteArray = new Uint8Array(byteNumbers);
+
+      byteArrays.push(byteArray);
+    }
+
+    var blob = new Blob(byteArrays, {type: contentType});
+    return blob;
   }
 
   public setPictureUno(event: any) {
@@ -191,20 +227,22 @@ export class ListPlacesComponent implements OnInit {
     this.ref = this.afStorage.ref('PlacePics/' + id + '/' + nombre);
     this.task = this.ref.put(file);
     this.task.then(a => {
-      let ref = this.ref.getDownloadURL();
+      let ref = task;
       let downloadURL = ref.subscribe(url =>{
-        this.urls[nombre] = url;
+        console.log('new url: ' + url);
         if(nombre === 'Thumbnail'){
           this.updateThumbnail(url);
         }
-        this.setDatabaseReference(nombre, url);
+        this.setDatabaseReference(id, nombre, url);
+        console.log('ID: ', id, 'Nombre: ', nombre, 'Url', url)
       });
     });
     this.modalService.dismissAll();
   }
 
-  setDatabaseReference(nombre, url) {
-
+  setDatabaseReference(id, nombre, url) {
+    this.itemRef = this.db.object('PlacePics/' + id);
+    this.itemRef.update({[nombre]: url});
   }
 
   updateThumbnail(url){
@@ -226,7 +264,7 @@ export class ListPlacesComponent implements OnInit {
     console.log(place);
     this.http.put('http://approach-server-env.pnne2aqzef.us-west-2.elasticbeanstalk.com/api/places', place).subscribe(
       response => {
-        console.log(response);
+        console.log('DB Actualizada: ', response);
       }
     );
   }
@@ -249,7 +287,19 @@ export class ListPlacesComponent implements OnInit {
     this.http.post('http://approach-server-env.pnne2aqzef.us-west-2.elasticbeanstalk.com/api/places', place).subscribe(
       response => {
         this.id = (<Place>response).id;
-        console.log(this.upload(this.pictureOneFile, (<Place>response).id, 'Picture1'));
+        this.upload(this.thumbnailFile, (<Place>response).id, 'Thumbnail');
+        if (this.pictureOneFile) {
+          this.upload(this.pictureOneFile, (<Place>response).id, 'Picture1');
+        }
+        if (this.pictureTwoFile) {
+          this.upload(this.pictureTwoFile, (<Place>response).id, 'Picture2');
+        }
+        if (this.pictureThreeFile) {
+          this.upload(this.pictureThreeFile, (<Place>response).id, 'Picture3');
+        }
+        if (this.pictureFourFile) {
+          this.upload(this.pictureFourFile, (<Place>response).id, 'Picture4');
+        }
       }
     );
 
