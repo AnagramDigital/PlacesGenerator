@@ -55,32 +55,37 @@
       <div class="form-group">
         <label for="name">Name</label>
         <div>
-          <input class="form-control" id="name">
+          <input class="form-control" id="name" name="name" [value]="Dataname" (input)="Dataname = $event.target.value">
         </div>
 
         <label for="name">Local type</label>
         <div>
-          <input class="form-control" id="localType">
+          <input class="form-control" id="localType" name="localType" [value]="DatalocalType" (input)="DatalocalType = $event.target.value">
         </div>
 
         <label for="name">facebook</label>
         <div>
-          <input class="form-control" id="facebook">
+          <input class="form-control" id="facebook" name="facebook" [value]="Datafacebook" (input)="Datafacebook = $event.target.value">
+        </div>
+
+        <label for="name">Twitter</label>
+        <div>
+          <input class="form-control" id="twitter" name="twitter" [value]="Datatwitter" (input)="Datatwitter = $event.target.value">
         </div>
 
         <label for="name">instagram</label>
         <div>
-          <input class="form-control" id="instagram">
+          <input class="form-control" id="instagram" name="instagram" [value]="DataInstagram" (input)="DataInstagram = $event.target.value">
         </div>
 
         <label for="name">about</label>
         <div>
-          <input class="form-control" id="about">
+          <input class="form-control" id="about" name="about" [value]="DataAbout" (input)="DataAbout = $event.target.value">
         </div>
 
         <label for="name">tel</label>
         <div>
-          <input class="form-control" id="tel">
+          <input class="form-control" id="tel" name="tel" [value]="DataTel" (input)="DataTel = $event.target.value">
         </div>
 
         <hr>
@@ -92,12 +97,12 @@
         <label for="name">lat</label>
         <div>
 
-          <input class="form-control" id="lat" [value]="lat" (input)="lat">
+          <input class="form-control" id="lat" name="lat" [value]="lat" (input)="lat = $event.target.value" [ngModel]="DataLat">
 
 
         <label for="name">lat</label>
 
-          <input class="form-control" id="lng" [value]="lng" (input)="lng">
+          <input class="form-control" id="lng" name="lng" [value]="lng" (input)="lng = $event.target.value" [ngModel]="DataLng">
         </div>
 
         <hr>
@@ -167,7 +172,7 @@
     </form>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">{{doneButtonTitle}}</button>
+    <button type="button" class="btn btn-outline-dark" (click)="save()">{{doneButtonTitle}}</button>
   </div>
 </ng-template>
 

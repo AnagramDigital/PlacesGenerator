@@ -3,10 +3,13 @@ import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 import {HttpClient} from '@angular/common/http';
 import * as $ from 'jquery';
 import * as domtoimage from 'dom-to-image';
-import { saveAs } from 'file-saver';
+import { AngularFireStorage, AngularFireStorageReference, AngularFireUploadTask } from 'angularfire2/storage';
+import { AngularFireDatabase } from '@angular/fire/database';
+import { Observable } from 'rxjs';
 
 
-interface Place {
+
+class Place {
   id: number;
   name: string;
   localType: string;
@@ -32,6 +35,7 @@ const PLACESBackup: Place[] = [];
 
 
 
+
 @Component({
   selector: 'app-list-places',
   templateUrl: './list-places.component.html',
@@ -40,14 +44,12 @@ const PLACESBackup: Place[] = [];
 
 export class ListPlacesComponent implements OnInit {
   places = PLACES;
-  cnvs: any;
   thumbnailPreview: any;
   closeResult: string;
   lat = 9.934113;
   lng = -84.103834;
   zoom = 14;
   searchValue = '';
-  facebookId = '';
   modalTitle = '';
   doneButtonTitle = '';
   thumbnailSrc = '';
@@ -61,16 +63,24 @@ export class ListPlacesComponent implements OnInit {
   pictureThreeFile: File;
   pictureFourFile: File;
   countries = {};
+  ref: AngularFireStorageReference;
+  task: AngularFireUploadTask;
+
+  id;
+  Dataname = '';
+  DatalocalType = '';
+  Datafacebook = '';
+  Datatwitter = '';
+  DataInstagram = '';
+  DataAbout = '';
+  DataTel = '';
+  DataLat = '';
+  DataLng = '';
+  urls = [];
 
 
-  /*DATAS*/
-  thumbnailData;
-  pictureUnoData;
-  pictureDosData;
-  pictureTresData;
-  pictureCuatroData;
 
-  constructor(private modalService: NgbModal, private http: HttpClient) {}
+  constructor(private modalService: NgbModal, private http: HttpClient, private afStorage: AngularFireStorage) {}
 
   open(content) {
     this.modalTitle = 'Crear Place';
@@ -117,9 +127,6 @@ export class ListPlacesComponent implements OnInit {
         });
     }
     reader.readAsDataURL(file);
-
-
-
   }
 
   public setPictureUno(event: any) {
@@ -175,11 +182,78 @@ export class ListPlacesComponent implements OnInit {
 
   search($event) {
     const value = $event.target.value.toLowerCase();
-    $('#places tr').filter(function() {
+    $('#places tr').filter(function(): any {
       $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
     });
   }
 
+  upload(file, id, nombre) {
+    this.ref = this.afStorage.ref('PlacePics/' + id + '/' + nombre);
+    this.task = this.ref.put(file);
+    this.task.then(a => {
+      let ref = this.ref.getDownloadURL();
+      let downloadURL = ref.subscribe(url =>{
+        this.urls[nombre] = url;
+        if(nombre === 'Thumbnail'){
+          this.updateThumbnail(url);
+        }
+        this.setDatabaseReference(nombre, url);
+      });
+    });
+    this.modalService.dismissAll();
+  }
+
+  setDatabaseReference(nombre, url) {
+
+  }
+
+  updateThumbnail(url){
+    let place: Place = new Place();
+    place.id = this.id;
+    place.name = this.Dataname;
+    place.localType = this.DatalocalType;
+    place.facebook = this.Datafacebook;
+    place.twitter = this.Datatwitter;
+    place.instagram = this.DataInstagram;
+    place.about = this.DataAbout;
+    place.tel = this.DataTel;
+    place.lat = this.lat;
+    place.lng = this.lng;
+    place.review = 5;
+    place.currentlyInPlace = 0;
+    place.willAttendToday = 0;
+    place.imageUrl = url;
+    console.log(place);
+    this.http.put('http://approach-server-env.pnne2aqzef.us-west-2.elasticbeanstalk.com/api/places', place).subscribe(
+      response => {
+        console.log(response);
+      }
+    );
+  }
+
+  save() {
+    let place: Place = new Place();
+    place.name = this.Dataname;
+    place.localType = this.DatalocalType;
+    place.facebook = this.Datafacebook;
+    place.twitter = this.Datatwitter;
+    place.instagram = this.DataInstagram;
+    place.about = this.DataAbout;
+    place.tel = this.DataTel;
+    place.lat = this.lat;
+    place.lng = this.lng;
+    place.review = 5;
+    place.currentlyInPlace = 0;
+    place.willAttendToday = 0;
+    console.log(place);
+    this.http.post('http://approach-server-env.pnne2aqzef.us-west-2.elasticbeanstalk.com/api/places', place).subscribe(
+      response => {
+        this.id = (<Place>response).id;
+        console.log(this.upload(this.pictureOneFile, (<Place>response).id, 'Picture1'));
+      }
+    );
+
+  }
 
   ngOnInit(): void {
     this.http.get('http://approach-server-env.pnne2aqzef.us-west-2.elasticbeanstalk.com/api/places').subscribe(data => {
@@ -193,7 +267,6 @@ export class ListPlacesComponent implements OnInit {
       }
 
     });
-
 
   }
 
