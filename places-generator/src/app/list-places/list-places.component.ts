@@ -22,6 +22,8 @@ interface Place {
   willAttendToday: number;
 }
 
+
+
 const PLACES: Place[] = [];
 const PLACESBackup: Place[] = [];
 
@@ -43,6 +45,16 @@ export class ListPlacesComponent implements OnInit {
   facebookId = '';
   modalTitle = '';
   doneButtonTitle = '';
+  thumbnailSrc = '';
+  pictureUnoSrc = '';
+  pictureDosSrc = '';
+  pictureTresSrc = '';
+  pictureCuatroSrc = '';
+  thumbnailFile: File;
+  pictureOneFile: File;
+  pictureTwoFile: File;
+  pictureThreeFile: File;
+  pictureFourFile: File;
   countries = {};
   constructor(private modalService: NgbModal, private http: HttpClient) {}
 
@@ -72,6 +84,55 @@ export class ListPlacesComponent implements OnInit {
     }
   }
 
+  public setThumbnail(event: any) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = e => {
+      this.thumbnailSrc = reader.result;
+      this.thumbnailFile = file;
+    }
+    reader.readAsDataURL(file);
+  }
+
+  public setPictureUno(event: any) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = e => {
+      this.pictureUnoSrc = reader.result;
+      this.pictureOneFile = file;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  public setPictureDos(event: any) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = e => {
+      this.pictureDosSrc = reader.result;
+      this.pictureTwoFile = file;
+    }
+    reader.readAsDataURL(file);
+  }
+
+  public setPictureTres(event: any) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = e => {
+      this.pictureTresSrc = reader.result;
+      this.pictureThreeFile = file;
+    }
+    reader.readAsDataURL(file);
+  }
+
+  public setPictureCuatro(event: any) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = e => {
+      this.pictureCuatroSrc = reader.result;
+      this.pictureFourFile = file;
+    }
+    reader.readAsDataURL(file);
+  }
 
 
   getAddressParts(object, id) {
