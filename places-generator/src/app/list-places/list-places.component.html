@@ -20,6 +20,7 @@
     <th scope="col">Tel</th>
     <th scope="col">Thumbnail</th>
     <th scope="col">Edit</th>
+    <th scope="col">Delete</th>
     <th scope="col">Pais</th>
 
   </tr>
@@ -37,7 +38,29 @@
     <td>{{ place.tel }}</td>
     <td><img width="50px" src="{{ place.imageUrl }}" alt=""></td>
     <td><button value="{{place.id}}" class="btn btn-primary" (click)="updatePlace($event, content)">Edit</button></td>
+    <td><button class="btn btn-danger" [swal]="deleteSwal" (confirm)="deletePlace(place.id)">
+      X
+    </button></td>
     <td>{{countries[place.id]}}</td>
+    <swal
+      #deleteSwal
+      title="¿Borrar {{ place.name }}?"
+      text="Esta acción no puede deshacerse"
+      type="warning"
+      cancelButtonText="cancelar"
+      [showCancelButton]="true"
+      [focusCancel]="true"
+      (confirm)="deletePlace(place.id)">
+    </swal>
+
+    <swal
+      #deleteCompleted
+      title="Place borrado"
+      text="Se ha borrado el place con éxito"
+      type="success"
+      [showCancelButton]="false"
+      (confirm)="reloadPage()">
+    </swal>
 
   </tr>
   </tbody>

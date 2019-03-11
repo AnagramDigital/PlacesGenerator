@@ -3,6 +3,8 @@ import { NgModule } from '@angular/core';
 import { AngularFireModule } from 'angularfire2';
 import { AngularFireStorageModule } from 'angularfire2/storage';
 
+import { SweetAlert2Module } from '@toverux/ngx-sweetalert2';
+
 import { AppComponent } from './app.component';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { ListPlacesComponent } from './list-places/list-places.component';
@@ -17,6 +19,7 @@ import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
     ListPlacesComponent
   ],
   imports: [
+    SweetAlert2Module.forRoot(),
     BrowserModule,
     FormsModule,
     AngularFireModule.initializeApp({

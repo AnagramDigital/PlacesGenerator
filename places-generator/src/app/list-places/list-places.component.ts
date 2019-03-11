@@ -7,7 +7,8 @@ import { AngularFireStorage, AngularFireStorageReference, AngularFireUploadTask 
 import { Observable } from 'rxjs';
 import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
 import {getResponseURL} from '@angular/http/src/http_utils';
-
+import {SwalComponent} from '@toverux/ngx-sweetalert2';
+import {ViewChild} from '@angular/core';
 
 
 class Place {
@@ -85,6 +86,10 @@ export class ListPlacesComponent implements OnInit {
   itemRef: AngularFireObject<any>;
   item: Observable<any>;
   db: AngularFireDatabase;
+
+
+  @ViewChild('deleteCompleted') private confirmDeleted: SwalComponent;
+
   constructor(private modalService: NgbModal, private http: HttpClient, private afStorage: AngularFireStorage, db: AngularFireDatabase) {
     this.db = db;
     this.itemRef = db.object('PlacePics');
@@ -137,18 +142,18 @@ export class ListPlacesComponent implements OnInit {
       domtoimage.toPng(node)
         .then(function(dataUrl) {
           console.log(dataUrl);
-          var block = dataUrl.split(";");
-          var contentType = block[0].split(":")[1];
-          var realData = block[1].split(",")[1];
-          var block = dataUrl.split(";");
-          var contentType = block[0].split(":")[1];
-          var realData = block[1].split(",")[1];
+          var block = dataUrl.split(';');
+          var contentType = block[0].split(':')[1];
+          var realData = block[1].split(',')[1];
+          var block = dataUrl.split(';');
+          var contentType = block[0].split(':')[1];
+          var realData = block[1].split(',')[1];
           self.thumbnailFile = new File([self.b64toBlob(realData, contentType,512)], 'Thumbnail.png', {type: 'image/png'});
         })
         .catch(function(error) {
           console.error('oops, something went wrong!', error);
         });
-    }
+    };
     reader.readAsDataURL(file);
   }
 
@@ -192,7 +197,7 @@ export class ListPlacesComponent implements OnInit {
     reader.onload = e => {
       this.pictureDosSrc = reader.result;
       this.pictureTwoFile = file;
-    }
+    };
     reader.readAsDataURL(file);
   }
 
@@ -202,7 +207,7 @@ export class ListPlacesComponent implements OnInit {
     reader.onload = e => {
       this.pictureTresSrc = reader.result;
       this.pictureThreeFile = file;
-    }
+    };
     reader.readAsDataURL(file);
   }
 
@@ -212,7 +217,7 @@ export class ListPlacesComponent implements OnInit {
     reader.onload = e => {
       this.pictureCuatroSrc = reader.result;
       this.pictureFourFile = file;
-    }
+    };
     reader.readAsDataURL(file);
   }
 
@@ -261,7 +266,7 @@ export class ListPlacesComponent implements OnInit {
       if(value.id == $event.target.valueOf().value){
         result = value;
       }
-    })
+    });
 
     this.modalTitle = 'Actualizar ' + result.name;
     this.doneButtonTitle = 'Actualizar';
@@ -364,7 +369,7 @@ export class ListPlacesComponent implements OnInit {
           if (this.pictureFourFile) {
             this.upload(this.pictureFourFile, (<Place>response).id, 'Picture4');
           }
-          window.location.reload();
+          this.reloadPage();
         }
       );
 
@@ -386,11 +391,20 @@ export class ListPlacesComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadDataFromApi();
-
   }
 
 
+  deletePlace(id: number) {
+    let url = 'http://approach-server-env.pnne2aqzef.us-west-2.elasticbeanstalk.com/api/places/';
+    //let url = 'localhost:8080/api/places/'
+    this.http.delete(url + id).subscribe(value => {
+      this.confirmDeleted.show();
+    });
 
+  }
 
+  reloadPage() {
+    window.location.reload();
+  }
 }
 
