@@ -36,7 +36,7 @@
     <td><a href="https://www.google.com/maps/search/?api=1&query={{place.lat}}, {{place.lng}}" target="_blank"> {{ place.lat}}, {{place.lng}}</a></td>
     <td>{{ place.tel }}</td>
     <td><img width="50px" src="{{ place.imageUrl }}" alt=""></td>
-    <td><button value="{{place.id}}" class="btn btn-primary">Edit</button></td>
+    <td><button value="{{place.id}}" class="btn btn-primary" (click)="updatePlace($event, content)">Edit</button></td>
     <td>{{countries[place.id]}}</td>
 
   </tr>
@@ -119,7 +119,7 @@
                 <div id="thumbnailPreview" style="width:247px; height: 277px; position:relative; overflow:hidden">
                   <canvas id="thumbnailCanvas" style="height:0%; position:relative; width:0%; z-index: 999"></canvas>
                 <img src="{{thumbnailSrc}}" id="thumbnailImage" style="background-size: cover;width:92%; height:82%; position:absolute; left: 11px; top: 10px; border-radius:25px; border:none;" [ngStyle]="{'opacity': thumbnailSrc.length == 0 ? 0 : 1}">
-                  <img src='../../assets/hot_place_frame.png' alt="" style="position:absolute; width:100%; height: 100%; z-index: 1; left:0;">
+                  <img src='../../assets/hot_place_frame.png' alt="" style="position:absolute; width:100%; height: 100%; z-index: 1; left:0;" id="hpframe">
 
                 <input id="thumbnail" type="file" name="foto" style="display:none" (change)="setThumbnail($event)">
               </div></a>

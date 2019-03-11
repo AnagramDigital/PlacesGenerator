@@ -6,6 +6,7 @@ import * as domtoimage from 'dom-to-image';
 import { AngularFireStorage, AngularFireStorageReference, AngularFireUploadTask } from 'angularfire2/storage';
 import { Observable } from 'rxjs';
 import { AngularFireDatabase, AngularFireObject } from '@angular/fire/database';
+import {getResponseURL} from '@angular/http/src/http_utils';
 
 
 
@@ -65,6 +66,7 @@ export class ListPlacesComponent implements OnInit {
   countries = {};
   ref: AngularFireStorageReference;
   task: AngularFireUploadTask;
+  isSave = true;
 
   id;
   Dataname = '';
@@ -90,6 +92,8 @@ export class ListPlacesComponent implements OnInit {
   }
 
   open(content) {
+    this.isSave = true;
+    this.thumbnailSrc = '';
     this.modalTitle = 'Crear Place';
     this.doneButtonTitle = 'Guardar';
     this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title', size: 'lg'}).result.then((result) => {
@@ -97,6 +101,12 @@ export class ListPlacesComponent implements OnInit {
     }, (reason) => {
       this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
     });
+    document.getElementById('hpframe').hidden = false;
+    this.thumbnailSrc = '';
+    this.pictureUnoSrc = '';
+    this.pictureDosSrc = '';
+    this.pictureTresSrc = '';
+    this.pictureCuatroSrc = '';
   }
 
 
@@ -117,6 +127,7 @@ export class ListPlacesComponent implements OnInit {
 
   public setThumbnail(event: any) {
     this.thumbnailPreview = document.getElementById('thumbnailPreview');
+    document.getElementById('hpframe').hidden = false;
     let self = this;
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -227,14 +238,11 @@ export class ListPlacesComponent implements OnInit {
     this.ref = this.afStorage.ref('PlacePics/' + id + '/' + nombre);
     this.task = this.ref.put(file);
     this.task.then(a => {
-      let ref = task;
-      let downloadURL = ref.subscribe(url =>{
-        console.log('new url: ' + url);
+      let ref = a.ref.getDownloadURL().then(value => {
         if(nombre === 'Thumbnail'){
-          this.updateThumbnail(url);
+          this.updateThumbnail(value);
         }
-        this.setDatabaseReference(id, nombre, url);
-        console.log('ID: ', id, 'Nombre: ', nombre, 'Url', url)
+        this.setDatabaseReference(id, nombre, value);
       });
     });
     this.modalService.dismissAll();
@@ -243,6 +251,51 @@ export class ListPlacesComponent implements OnInit {
   setDatabaseReference(id, nombre, url) {
     this.itemRef = this.db.object('PlacePics/' + id);
     this.itemRef.update({[nombre]: url});
+  }
+
+  updatePlace($event, content){
+    this.isSave = false;
+    let self = this;
+    let result : Place;
+    this.places.forEach(value => {
+      if(value.id == $event.target.valueOf().value){
+        result = value;
+      }
+    })
+
+    this.modalTitle = 'Actualizar ' + result.name;
+    this.doneButtonTitle = 'Actualizar';
+    this.modalService.open(content, {ariaLabelledBy: 'modal-basic-title', size: 'lg'}).result.then((result) => {
+      this.closeResult = `Closed with: ${result}`;
+    }, (reason) => {
+      this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
+    });
+    this.Dataname = result.name;
+    this.DatalocalType = result.localType;
+    this.Datafacebook = result.facebook;
+    this.Datatwitter = result.twitter;
+    this.DataInstagram = result.instagram;
+    this.DataAbout = result.about;
+    this.DataTel = result.tel;
+    this.lat = result.lat;
+    this.lng = result.lng;
+    this.id = result.id;
+
+
+    this.itemRef = this.db.object('PlacePics/' + result.id);
+    document.getElementById('hpframe').hidden = true;
+    this.itemRef.valueChanges().forEach(value => {
+      self.thumbnailSrc = value['Thumbnail'];
+      self.pictureUnoSrc = value['Picture1'];
+      self.pictureDosSrc = value['Picture2'];
+      self.pictureTresSrc = value['Picture3'];
+      self.pictureCuatroSrc = value['Picture4'];
+    });
+
+
+
+
+
   }
 
   updateThumbnail(url){
@@ -261,7 +314,6 @@ export class ListPlacesComponent implements OnInit {
     place.currentlyInPlace = 0;
     place.willAttendToday = 0;
     place.imageUrl = url;
-    console.log(place);
     this.http.put('http://approach-server-env.pnne2aqzef.us-west-2.elasticbeanstalk.com/api/places', place).subscribe(
       response => {
         console.log('DB Actualizada: ', response);
@@ -270,7 +322,14 @@ export class ListPlacesComponent implements OnInit {
   }
 
   save() {
+    let url = 'http://approach-server-env.pnne2aqzef.us-west-2.elasticbeanstalk.com/api/places';
     let place: Place = new Place();
+    if(this.id){
+      place.id = this.id;
+    }
+    if(!this.isSave){
+      place.imageUrl = this.thumbnailSrc;
+    }
     place.name = this.Dataname;
     place.localType = this.DatalocalType;
     place.facebook = this.Datafacebook;
@@ -284,28 +343,34 @@ export class ListPlacesComponent implements OnInit {
     place.currentlyInPlace = 0;
     place.willAttendToday = 0;
     console.log(place);
-    this.http.post('http://approach-server-env.pnne2aqzef.us-west-2.elasticbeanstalk.com/api/places', place).subscribe(
-      response => {
-        this.id = (<Place>response).id;
-        this.upload(this.thumbnailFile, (<Place>response).id, 'Thumbnail');
-        if (this.pictureOneFile) {
-          this.upload(this.pictureOneFile, (<Place>response).id, 'Picture1');
+
+    let verb  = this.isSave ? this.http.post(url, place) : this.http.put(url, place);
+
+      verb.subscribe(
+        response => {
+          this.id = (<Place>response).id;
+          if(this.thumbnailFile){
+            this.upload(this.thumbnailFile, (<Place>response).id, 'Thumbnail');
+          }
+          if (this.pictureOneFile) {
+            this.upload(this.pictureOneFile, (<Place>response).id, 'Picture1');
+          }
+          if (this.pictureTwoFile) {
+            this.upload(this.pictureTwoFile, (<Place>response).id, 'Picture2');
+          }
+          if (this.pictureThreeFile) {
+            this.upload(this.pictureThreeFile, (<Place>response).id, 'Picture3');
+          }
+          if (this.pictureFourFile) {
+            this.upload(this.pictureFourFile, (<Place>response).id, 'Picture4');
+          }
+          window.location.reload();
         }
-        if (this.pictureTwoFile) {
-          this.upload(this.pictureTwoFile, (<Place>response).id, 'Picture2');
-        }
-        if (this.pictureThreeFile) {
-          this.upload(this.pictureThreeFile, (<Place>response).id, 'Picture3');
-        }
-        if (this.pictureFourFile) {
-          this.upload(this.pictureFourFile, (<Place>response).id, 'Picture4');
-        }
-      }
-    );
+      );
 
   }
 
-  ngOnInit(): void {
+  loadDataFromApi(){
     this.http.get('http://approach-server-env.pnne2aqzef.us-west-2.elasticbeanstalk.com/api/places').subscribe(data => {
       for (let i = 0; i < (<Place[]>data).length; i++) {
         PLACES.push(data[i]);
@@ -317,8 +382,13 @@ export class ListPlacesComponent implements OnInit {
       }
 
     });
+  }
+
+  ngOnInit(): void {
+    this.loadDataFromApi();
 
   }
+
 
 
 
